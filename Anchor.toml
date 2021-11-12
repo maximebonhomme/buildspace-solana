@@ -1,0 +1,12 @@
+[programs.devnet]
+buildspacesolana = "4HEaxf3M42QVJcPJbk8VQrpM55aZZQY33s7q95t3g1iN"
+
+[registry]
+url = "https://anchor.projectserum.com"
+
+[provider]
+cluster = "devnet"
+wallet = "/home/maximebonhomme/.config/solana/id.json"
+
+[scripts]
+test = "node tests/buildspacesolana.js" 
