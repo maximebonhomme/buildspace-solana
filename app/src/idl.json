@@ -43,6 +43,27 @@
           "type": "string"
         }
       ]
+    },
+    {
+      "name": "likeGif",
+      "accounts": [
+        {
+          "name": "baseAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "gifLink",
+          "type": "string"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -62,12 +83,36 @@
                 "defined": "ItemStruct"
               }
             }
+          },
+          {
+            "name": "likeList",
+            "type": {
+              "vec": {
+                "defined": "LikeStruct"
+              }
+            }
           }
         ]
       }
     }
   ],
   "types": [
+    {
+      "name": "LikeStruct",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "userAddress",
+            "type": "publicKey"
+          },
+          {
+            "name": "gifLink",
+            "type": "string"
+          }
+        ]
+      }
+    },
     {
       "name": "ItemStruct",
       "type": {

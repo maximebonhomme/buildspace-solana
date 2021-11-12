@@ -29,7 +29,20 @@ const main = async() => {
   console.log('totalGifs', account.totalGifs)
 
   console.log('adding a gif......')
-  await program.rpc.addGif('hello there', {
+  await program.rpc.addGif('hello_there', {
+    accounts: {
+      baseAccount: baseAccount.publicKey,
+      user: provider.wallet.publicKey 
+    }
+  })
+  console.log('done.')
+  console.log('fetching account...')
+  account = await program.account.baseAccount.fetch(baseAccount.publicKey);
+  console.log('done.')
+  console.log('account', account)
+
+  console.log('like gif')
+  await program.rpc.likeGif('hello_there', {
     accounts: {
       baseAccount: baseAccount.publicKey,
       user: provider.wallet.publicKey 

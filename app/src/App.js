@@ -36,6 +36,17 @@ const App = () => {
   const [inputValue, setInputValue] = useState('')
   const [gifList, setGifList] = useState([])
 
+  const getGifListWithLikes = (gifList, likeList) => {
+    const list = gifList.map(gif => {
+      return {
+        ...gif,
+        likes: likeList.filter(like => like.gifLink === gif.gifLink)
+      }
+    })
+
+    return list
+  }
+
   const walletLookup = async () => {
     try {
       const { solana } = window
@@ -107,10 +118,12 @@ const App = () => {
       const provider = getProvider()
       const program = new Program(idl, programID, provider)
       const account = await program.account.baseAccount.fetch(baseAccount.publicKey)
-
+      const gifList = getGifListWithLikes(account.gifList, account.likeList)
+      
       console.log("Got the account", account)
+      console.log('transformed gifList', gifList)
 
-      setGifList(account.gifList)
+      setGifList(gifList)
       setStatus(STATUS_WALLET_CONNECTED)
     } catch (error) {
       console.log('Error getting gifList', error)
@@ -138,6 +151,30 @@ const App = () => {
 
     }
   };
+
+  const handleGifLike = async (gif) => {
+    const provider = getProvider()
+    const program = new Program(idl, programID, provider)
+    const user = provider.wallet.publicKey
+    const address = user.toString()
+    const alreadyLiked = gif.likes.find((like) => like.userAddress.toString() === address)
+
+    if (alreadyLiked) {
+      console.log('you already liked this gif!')
+      return
+    }
+
+    await program.rpc.likeGif(gif.gifLink, {
+      accounts: {
+        baseAccount: baseAccount.publicKey,
+        user: provider.wallet.publicKey
+      }
+    })
+    console.log('user, ', provider.wallet.publicKey.toString())
+    console.log("GIF sucesfully liked", gif)
+
+    await getGifList()
+  }
 
   useEffect(() => {
     if (walletAddress) {
@@ -191,8 +228,8 @@ const App = () => {
                     <img src={gif.gifLink} alt={gif.gifLink} />
                     <div className='gif-item-footer'>
                       <div className='like-container'>
-                        <button className='like'>❤️</button>
-                        <p className='like-count'>2</p>
+                        <button className='like' onClick={() => { handleGifLike(gif) }}>❤️</button>
+                        <p className='like-count'>{gif.likes.length}</p>
                       </div>
                       <p className='gif-item-address'>{gif.userAddress.toString()}</p>
                     </div>

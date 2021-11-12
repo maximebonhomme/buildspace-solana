@@ -28,18 +28,19 @@ pub mod buildspacesolana {
     Ok(())
   }
 
-  // pub fn like_gif(ctx: Context<LikeGif>, gif_link: String) -> ProgramResult {
-  //   let base_account = &mut ctx.accounts.base_account;
-  //   let mut iterable_gif_list = base_account.gif_list.iter();
-  //   let gif = iterable_gif_list.find(|&x| x.gif_link == gif_link);
+  pub fn like_gif(ctx: Context<LikeGif>, gif_link: String) -> ProgramResult {
+    let base_account = &mut ctx.accounts.base_account;
+    let user = &mut ctx.accounts.user;
 
-  //   if gif {
-  //     gif.like_count += 1;
-  //   }
-  //   // let gif = 'something';
-  //   // gif.total_gifs += 1;
-  //   Ok(())
-  // }
+    let user_address = LikeStruct {
+      user_address: *user.to_account_info().key,
+      gif_link: gif_link.to_string(),
+    };
+
+    base_account.like_list.push(user_address);
+
+    Ok(())
+  }
 }
 
 #[derive(Accounts)]
@@ -61,19 +62,24 @@ pub struct AddGif<'info> {
   pub user: Signer<'info>,
 }
 
-// #[derive(Accounts)]
-// pub struct LikeGif<'info> {
-//   #[account(mut)]
-//   pub base_account: Account<'info, BaseAccount>,
-//   #[account(mut)]
-//   pub user: Signer<'info>,
-// }
+#[derive(Accounts)]
+pub struct LikeGif<'info> {
+  #[account(mut)]
+  pub base_account: Account<'info, BaseAccount>,
+  #[account(mut)]
+  pub user: Signer<'info>,
+}
+
+#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
+pub struct LikeStruct {
+  pub user_address: Pubkey,
+  pub gif_link: String,
+}
 
 #[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
 pub struct ItemStruct {
   pub gif_link: String,
   pub user_address: Pubkey,
-  // pub like_count: u64,
 }
 
 // Tell Solana what we want to store on this account.
@@ -81,4 +87,5 @@ pub struct ItemStruct {
 pub struct BaseAccount {
     pub total_gifs: u64,
     pub gif_list: Vec<ItemStruct>,
+    pub like_list: Vec<LikeStruct>,
 }
